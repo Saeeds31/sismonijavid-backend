@@ -155,7 +155,7 @@ return [
 
         'default' => [
             'scheme' => 'unix',
-            'path' => env('REDIS_HOST', '/home/mahsetis/redis/redis.sock'),
+            'path' => env('REDIS_HOST', '/home/sismonij/redis/redis.sock'),
             'database' => env('REDIS_DB', '0'),
             'max_retries' => env('REDIS_MAX_RETRIES', 3),
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
@@ -165,7 +165,7 @@ return [
 
         'cache' => [
             'scheme' => 'unix',
-            'path' => env('REDIS_HOST', '/home/mahsetis/redis/redis.sock'),
+            'path' => env('REDIS_HOST', '/home/sismonij/redis/redis.sock'),
             'database' => env('REDIS_CACHE_DB', '1'),
             'max_retries' => env('REDIS_MAX_RETRIES', 3),
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),

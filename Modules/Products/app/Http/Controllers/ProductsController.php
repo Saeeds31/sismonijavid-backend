@@ -117,7 +117,6 @@ class ProductsController extends Controller
         // ساخت تنوع پیش فرض
         $variantData = [
             'price' => $product->price,
-            'wp_added' => false,
             'stock' => $product->stock ?? 0,
             'sku' => $product->sku,
         ];
@@ -165,9 +164,7 @@ class ProductsController extends Controller
      */
     protected function handleVariantsSyncAfterUpdate(Product $product): void
     {
-        // ۱. بررسی: آیا بیش از یک واریانت با values داریم که wp_added=false باشه؟
         $hasMultipleVariantsWithValues = $product->variants()
-            ->where('wp_added', false)
             ->whereHas('values') // واریانت‌هایی که حداقل یک value دارن
             ->count() > 1;
 
@@ -178,9 +175,7 @@ class ProductsController extends Controller
         }
 
         // ۲. حالت دوم: محصول چند واریانت واقعی نداره
-        // بررسی: آیا یک واریانت با wp_added=false و بدون values داریم؟
         $simpleVariant = $product->variants()
-            ->where('wp_added', false)
             ->whereDoesntHave('values')
             ->first();
 
@@ -197,7 +192,6 @@ class ProductsController extends Controller
             'sku'      => $product->sku,
             'price'    => $product->price ?? 0,
             'stock'    => $product->stock ?? 0,
-            'wp_added' => false,
         ]);
     }
     // آپدیت محصول
@@ -524,10 +518,7 @@ class ProductsController extends Controller
             ->whereIn('sales_channel', ['online_only', 'both'])
             ->findOrFail($id);
 
-        // فقط واریانت‌هایی که wp_added=false هستن
-        $variants = $product->variants->filter(function ($variant) {
-            return $variant->wp_added == false;
-        })->values();
+        $variants = $product->variants->values();
 
         $specs = $product->specifications_with_values;
 

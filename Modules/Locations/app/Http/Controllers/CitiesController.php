@@ -29,7 +29,7 @@ class CitiesController extends Controller
             $cacheKey,
             CacheService::TTL_ONE_MONTH,
             function () use ($provinceId) {
-                $query = City::with('province')->where('wp_added', 0);
+                $query = City::with('province');
 
                 if ($provinceId) {
                     $query->where('province_id', $provinceId);
@@ -53,7 +53,7 @@ class CitiesController extends Controller
         $perPage = (int) $request->input('per_page', 10);
         $perPage = min(max($perPage, 1), 100);
 
-        $query = City::query()->where('wp_added', 0);
+        $query = City::query();
 
         // فیلتر بر اساس استان
         if ($provinceId = $request->input('province_id')) {
@@ -85,7 +85,7 @@ class CitiesController extends Controller
     public function store(CityStoreRequest $request, NotificationService $notifications)
     {
         $data = $request->validated();
-        $data['wp_added'] = 0;
+        
 
         $city = City::create($data);
         $notifications->create(
@@ -119,7 +119,7 @@ class CitiesController extends Controller
     public function update(CityUpdateRequest $request, City $city, NotificationService $notifications)
     {
         $data = $request->validated();
-        $data['wp_added'] = 0;
+       
         $city->update($data);
         $usedInAddress = Address::where('city_id', $city->id)->exists();
         if ($usedInAddress) {

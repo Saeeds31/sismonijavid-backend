@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->string('sku')->nullable();
             $table->bigInteger('price');
-            $table->boolean('wp_added')->default(false);
             $table->integer('stock')->default(0);
             $table->timestamps();
         });

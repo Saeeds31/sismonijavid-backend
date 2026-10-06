@@ -37,7 +37,6 @@ class ProductVariantController extends Controller
         foreach ($data['variants'] as $variantData) {
             // اطلاعات پایه تنوع
             $variantFields = [
-                'wp_added' => false,
                 'sku'   => $variantData['sku'] ?? null,
                 'price' => $variantData['price'],
                 'stock' => $variantData['stock'] ?? 0,
@@ -154,10 +153,9 @@ class ProductVariantController extends Controller
         return DB::transaction(function () use ($data, $product, $notifications) {
 
             // ============================================================
-            // ۱. حذف واریانت پیش‌فرض فیک (wp_added=false + values خالی)
+            // ۱. حذف واریانت پیش‌فرض فیک 
             // ============================================================
             $fakeVariants = $product->variants()
-                ->where('wp_added', false)
                 ->whereDoesntHave('values')
                 ->get();
 
@@ -167,7 +165,7 @@ class ProductVariantController extends Controller
             }
 
             // ============================================================
-            // ۲. حذف واریانت‌های wp_added=false که توی درخواست نیومدن
+            // ۲. حذف واریانت‌های 
             // ============================================================
             $sentVariantIds = collect($data['variants'])
                 ->pluck('id')
@@ -175,7 +173,6 @@ class ProductVariantController extends Controller
                 ->toArray();
 
             $variantsToDelete = $product->variants()
-                ->where('wp_added', false)
                 ->whereHas('values')  // فقط واریانت‌هایی که values دارند
                 ->whereNotIn('id', $sentVariantIds)
                 ->get();
@@ -185,7 +182,7 @@ class ProductVariantController extends Controller
             }
 
             // ============================================================
-            // ۳. آپدیت/ایجاد واریانت‌های ارسال‌شده (فقط wp_added=false)
+            // ۳. آپدیت/ایجاد واریانت‌های ارسال‌شده (فقط 
             // ============================================================
             $variants = [];
 
@@ -201,13 +198,9 @@ class ProductVariantController extends Controller
                         ->where('id', $variantData['id'])
                         ->firstOrFail();
 
-                    // ⛔ اگه wp_added=true بود، کلاً نادیده بگیر
-                    if ($variant->wp_added) {
-                        continue;
-                    }
+                  
 
                     $variantFields = [
-                        'wp_added' => false,
                         'sku'   => $variantData['sku'] ?? null,
                         'price' => $variantData['price'],
                         'stock' => $variantData['stock'] ?? 0,
@@ -227,12 +220,10 @@ class ProductVariantController extends Controller
 
                     $variant->update($variantFields);
                 } else {
-                    // واریانت جدید → همیشه wp_added=false
                     $variantFields = [
                         'sku'      => $variantData['sku'] ?? null,
                         'price'    => $variantData['price'],
                         'stock'    => $variantData['stock'] ?? 0,
-                        'wp_added' => false,
                     ];
 
                     if ($hasValidDiscount) {

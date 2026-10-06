@@ -17,8 +17,7 @@ class ProvincesController extends Controller
         $provinces = CacheService::remember(
             CacheService::BASE_PROVINCE,
             CacheService::TTL_ONE_MONTH,
-            fn() => Province::where('wp_added', 0)
-                ->orderBy('id')
+            fn() => Province::orderBy('id')
                 ->get()
         );
 
@@ -33,11 +32,7 @@ class ProvincesController extends Controller
      */
     public function index()
     {
-        $provinces = Province::with(['cities' => function ($query) {
-            $query->where(function ($q) {
-                $q->where('wp_added', false);
-            });
-        }])->where('id', '<=', 31)->get();
+        $provinces = Province::with(['cities'])->where('id', '<=', 31)->get();
         return response()->json([
             'success' => true,
             'message' => 'لیست استان ها',
@@ -51,7 +46,7 @@ class ProvincesController extends Controller
     public function store(ProvinceStoreRequest $request, NotificationService $notifications)
     {
         $validated = $request->validated();
-        $validated['wp_added'] = 0;
+
         $province = Province::create($validated);
         $notifications->create(
             "ثبت استان",
@@ -87,7 +82,7 @@ class ProvincesController extends Controller
     {
 
         $validated = $request->validated();
-        $validated['wp_added'] = 0;
+   
         $province = Province::findOrFail($id);
         $usedInAddress = Address::where('province_id', $province->id)->exists();
         if ($usedInAddress) {
