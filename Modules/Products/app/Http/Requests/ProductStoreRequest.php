@@ -29,6 +29,8 @@ class ProductStoreRequest extends FormRequest
             'sku'              => ['nullable', 'string', 'max:100'],
             'stock'            => ['nullable', 'integer', 'min:0'],
             'price'            => ['required', 'integer', 'min:0'],
+            'in_store_price'            => ['nullable', 'integer', 'min:0'],
+
             'video'            => ['nullable', 'file', 'max:4096'],
             'categories' => ['required', 'array'],
             'categories.*' => ['exists:categories,id'],

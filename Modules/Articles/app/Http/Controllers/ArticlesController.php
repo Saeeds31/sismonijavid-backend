@@ -33,10 +33,10 @@ class ArticlesController extends Controller
             'data'    => $articles
         ]);
     }
-    public function frontArticle($id)
+    public function frontArticle($slug)
     {
         // اول existence چک می‌شه (خارج از کش)
-        $exists = Article::where('id', $id)->exists();
+        $exists = Article::where('slug', $slug)->exists();
 
         if (!$exists) {
             return response()->json([
@@ -47,17 +47,17 @@ class ArticlesController extends Controller
 
         $data = CacheService::rememberWithTags(
             [CacheService::TAG_BLOGS],
-            "front_article_{$id}",
+            "front_article_{$slug}",
             CacheService::TTL_ONE_DAY,
-            function () use ($id) {
-                $article = Article::with('categories', 'author', 'comments')->find($id);
+            function () use ($slug) {
+                $article = Article::with('categories', 'author', 'comments')->where('slug',$slug)->first();
                 $categoryIds = $article->categories->pluck('id');
 
                 $related = collect();
                 if ($categoryIds->isNotEmpty()) {
                     $related = Article::with('author')
                         ->whereHas('categories', function ($q) use ($categoryIds) {
-                            $q->whereIn('categories.id', $categoryIds);
+                            $q->whereIn('id', $categoryIds);
                         })
                         ->where('id', '!=', $article->id)
                         ->latest('created_at')

@@ -14,7 +14,7 @@ class ArticleStoreRequest extends FormRequest
         return [
             'title'             => ['required', 'string', 'max:255'],
             'slug'              => ['nullable', 'string', 'max:255', 'unique:articles,slug'],
-            'image'             => ['nullable', 'file', 'max:255'], // می‌تونی بعداً rule فایل image بذاری
+            'image'             => ['nullable', 'file', 'max:1024'], // می‌تونی بعداً rule فایل image بذاری
             'short_description' => ['nullable', 'string'],
             'description'       => ['nullable', 'string'],
             'meta_title'        => ['nullable', 'string', 'max:255'],

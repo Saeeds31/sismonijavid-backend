@@ -16,6 +16,8 @@ class ProductVariantUpdateRequest extends FormRequest
             'sku'              => ['nullable', 'string', 'max:100'],
             'stock'            => ['nullable', 'integer', 'min:0'],
             'price'            => ['required', 'integer', 'min:0'],
+            'in_store_price' => 'nullable|integer|min:0',
+
             'values' => 'nullable|array',
             'values.*' => 'exists:attribute_values,id',
         ];

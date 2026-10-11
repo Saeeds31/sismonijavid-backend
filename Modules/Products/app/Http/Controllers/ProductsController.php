@@ -117,6 +117,7 @@ class ProductsController extends Controller
         // ساخت تنوع پیش فرض
         $variantData = [
             'price' => $product->price,
+            'in_store_price' => $product->in_store_price,
             'stock' => $product->stock ?? 0,
             'sku' => $product->sku,
         ];
@@ -183,6 +184,8 @@ class ProductsController extends Controller
             // موجودی محصول رو به این واریانت بده
             $simpleVariant->update([
                 'stock' => $product->stock,
+                'price'    => $product->price ?? 0,
+                'in_store_price'    => $product->in_store_price ?? 0,
             ]);
             return;
         }
@@ -191,6 +194,7 @@ class ProductsController extends Controller
         $product->variants()->create([
             'sku'      => $product->sku,
             'price'    => $product->price ?? 0,
+            'in_store_price'    => $product->in_store_price ?? 0,
             'stock'    => $product->stock ?? 0,
         ]);
     }

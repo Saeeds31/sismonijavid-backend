@@ -29,6 +29,7 @@ class ProductUpdateRequest extends FormRequest
             'is_rechargeable'       => ['nullable', 'boolean'],
             'stock'            => ['nullable', 'integer', 'min:0'],
             'price'            => ['nullable', 'integer', 'min:0'],
+            'in_store_price'            => ['nullable', 'integer', 'min:0'],
             'video'            => ['nullable', 'file', 'max:4096'],
             'categories' => ['required', 'array'],
             'categories.*' => ['exists:categories,id'],

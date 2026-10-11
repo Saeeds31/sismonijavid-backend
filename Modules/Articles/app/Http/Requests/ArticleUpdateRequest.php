@@ -20,7 +20,7 @@ class ArticleUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique('articles', 'slug')->ignore($this->route('article'))
             ],
-            'image'             => ['sometimes', 'file', 'max:255'],
+            'image'             => ['sometimes', 'file', 'max:1024'],
             'short_description' => ['sometimes', 'string'],
             'description'       => ['sometimes', 'string'],
             'meta_title'        => ['sometimes', 'string', 'max:255'],

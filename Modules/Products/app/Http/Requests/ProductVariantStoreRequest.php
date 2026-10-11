@@ -17,6 +17,7 @@ class ProductVariantStoreRequest extends FormRequest
             'variants.*.sku' => 'nullable|string|max:100',
             'variants.*.stock' => 'nullable|integer|min:0',
             'variants.*.price' => 'required|integer|min:0',
+            'variants.*.in_store_price' => 'nullable|integer|min:0',
             'variants.*.discount_value' => ['nullable', 'integer', 'min:0'],
             'variants.*.discount_type' => ['nullable', 'in:percent,fixed'],
             'variants.*.discount_start_at'              => ['nullable', 'date'],

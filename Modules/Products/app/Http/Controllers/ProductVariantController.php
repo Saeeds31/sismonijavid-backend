@@ -39,6 +39,7 @@ class ProductVariantController extends Controller
             $variantFields = [
                 'sku'   => $variantData['sku'] ?? null,
                 'price' => $variantData['price'],
+                'in_store_price' => $variantData['in_store_price'],
                 'stock' => $variantData['stock'] ?? 0,
             ];
 
@@ -141,6 +142,7 @@ class ProductVariantController extends Controller
             'variants.*.id' => 'nullable|exists:product_variants,id',
             'variants.*.sku' => 'nullable|string|max:255',
             'variants.*.price' => 'required|numeric',
+            'variants.*.in_store_price' => 'nullable|numeric',
             'variants.*.stock' => 'nullable|integer',
             'variants.*.discount_value' => ['nullable', 'integer', 'min:0'],
             'variants.*.discount_type' => ['nullable', 'in:percent,fixed'],
@@ -198,11 +200,12 @@ class ProductVariantController extends Controller
                         ->where('id', $variantData['id'])
                         ->firstOrFail();
 
-                  
+
 
                     $variantFields = [
                         'sku'   => $variantData['sku'] ?? null,
                         'price' => $variantData['price'],
+                        'in_store_price' => $variantData['in_store_price'],
                         'stock' => $variantData['stock'] ?? 0,
                     ];
 
@@ -223,6 +226,7 @@ class ProductVariantController extends Controller
                     $variantFields = [
                         'sku'      => $variantData['sku'] ?? null,
                         'price'    => $variantData['price'],
+                        'in_store_price'    => $variantData['in_store_price'],
                         'stock'    => $variantData['stock'] ?? 0,
                     ];
 
@@ -251,7 +255,7 @@ class ProductVariantController extends Controller
             // ۴. sync نهایی موجودی محصول
             // ============================================================
             $this->productStockService->sync($product);
-           
+
 
             $notifications->create(
                 "ویرایش تنوع‌های محصول",

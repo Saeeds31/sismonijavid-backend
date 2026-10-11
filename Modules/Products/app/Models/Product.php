@@ -38,6 +38,7 @@ class Product extends Model
         'sku',
         'stock',
         'price',
+        'in_store_price',
         'video'
     ];
     protected $appends = ['final_price'];
