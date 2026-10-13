@@ -28,14 +28,22 @@ class ProductVariant extends Model
         'discount_end_at',
     ];
 
-    protected $appends = ['final_price'];
+    protected $appends = ['final_price', 'pos_price'];
 
     protected $casts = [
         'price' => 'integer',
         'stock' => 'integer',
         'discount_value' => 'integer',
     ];
-
+    /**
+     * قیمت مخصوص POS واریانت - فقط قیمت پایه بدون تخفیف
+     */
+    public function getPosPriceAttribute()
+    {
+        return !empty($this->in_store_price)
+            ? $this->in_store_price
+            : $this->price;
+    }
     public function product()
     {
         return $this->belongsTo(Product::class);

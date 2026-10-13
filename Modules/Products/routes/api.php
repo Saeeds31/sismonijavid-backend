@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Products\Http\Controllers\ProductsController;
 use Modules\Products\Http\Controllers\ProductVariantController;
+use Modules\Products\Http\Controllers\VariantExcelController;
 
 Route::middleware(['auth:sanctum'])->prefix('v1/admin')->group(function () {
     Route::apiResource('products', ProductsController::class)->names('products');
@@ -14,6 +15,10 @@ Route::middleware(['auth:sanctum'])->prefix('v1/admin')->group(function () {
         Route::get('variants/{variant}', [ProductVariantController::class, 'show']);
         Route::put('variants/{variant}', [ProductVariantController::class, 'update']);
         Route::delete('variants/{variant}', [ProductVariantController::class, 'destroy']);
+    });
+    Route::prefix('sync-product')->group(function () {
+        Route::get('/export', [VariantExcelController::class, 'export']);
+        Route::post('/import', [VariantExcelController::class, 'import']);
     });
 });
 Route::prefix('v1/front')->group(function () {

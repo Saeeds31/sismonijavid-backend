@@ -41,8 +41,17 @@ class Product extends Model
         'in_store_price',
         'video'
     ];
-    protected $appends = ['final_price'];
-
+    protected $appends = ['final_price', 'pos_price'];
+    /**
+     * قیمت مخصوص POS - فقط قیمت پایه بدون تخفیف
+     * اگه in_store_price پر بود از آن استفاده می‌کنه، وگرنه price
+     */
+    public function getPosPriceAttribute()
+    {
+        return !empty($this->in_store_price)
+            ? $this->in_store_price
+            : $this->price;
+    }
     // رابطه با دسته‌بندی‌ها
     public function categories()
     {
