@@ -40,7 +40,6 @@ class VariantExcelController extends Controller
 
     /**
      * ورودی اکسل و بروزرسانی گروهی
-     * POST /api/v1/admin/variants/import
      */
     public function import(VariantImportRequest $request)
     {

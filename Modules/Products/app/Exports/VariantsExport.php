@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Modules\Products\Models\Product;
 use PhpOffice\PhpSpreadsheet\Style\Protection;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use Modules\Products\Models\ProductVariant;
@@ -37,7 +38,7 @@ class VariantsExport implements
     public function query()
     {
         // اول 100 محصول رو انتخاب می‌کنیم (با فیلتر دسته‌بندی)
-        $productIdsQuery = \Modules\Products\Models\Product::query()
+        $productIdsQuery = Product::query()
             ->select('id')
             ->when(!empty($this->categoryIds), function ($q) {
                 $q->whereHas('categories', function ($c) {
