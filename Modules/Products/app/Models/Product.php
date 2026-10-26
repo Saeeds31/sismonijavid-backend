@@ -38,6 +38,7 @@ class Product extends Model
         'sku',
         'stock',
         'price',
+        'slug',
         'in_store_price',
         'video'
     ];

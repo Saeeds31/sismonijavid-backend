@@ -30,7 +30,13 @@ class ProductStoreRequest extends FormRequest
             'stock'            => ['nullable', 'integer', 'min:0'],
             'price'            => ['required', 'integer', 'min:0'],
             'in_store_price'            => ['nullable', 'integer', 'min:0'],
-
+            'slug' => [
+                'nullable',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'
+            ],
             'video'            => ['nullable', 'file', 'max:4096'],
             'categories' => ['required', 'array'],
             'categories.*' => ['exists:categories,id'],
