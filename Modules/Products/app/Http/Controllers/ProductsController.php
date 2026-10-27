@@ -377,11 +377,20 @@ class ProductsController extends Controller
             // کش نمی‌شه
             $products = $this->buildProductsQuery($request)->paginate(18);
         }
-
+        $category = null;
+        if ($slug = $request->get('category_slug')) {
+            $category = CacheService::rememberWithTags(
+                [CacheService::TAG_CATEGORIES],
+                CacheService::BASE_CATEGORIES . '_' . $slug,
+                CacheService::TTL_ONE_MONTH,
+                fn() => Category::where('slug', $slug)->first()
+            );
+        }
         return response()->json([
             'success' => true,
             'message' => 'لیست محصولات',
             'data'    => $products,
+            'category'    => $category,
         ]);
     }
     private function shouldCacheProductsList(Request $request): bool
@@ -397,6 +406,7 @@ class ProductsController extends Controller
     {
         $params = [
             'category_ids' => null,
+            'category_slug' => $request->get('category_slug'),
             'sort'         => $request->get('sort', 'newest'),
             'page'         => (int) $request->get('page', 1),
         ];
@@ -441,6 +451,21 @@ class ProductsController extends Controller
             $query->whereHas('categories', function ($q) use ($expandedIds) {
                 $q->whereIn('categories.id', $expandedIds);
             });
+        }
+
+        if ($category_slug = $request->get('category_slug')) {
+            $category = Category::where('slug', $category_slug)->first();
+
+            if ($category) {
+                $expandedIds = $category->descendantIds();
+
+                $query->whereHas('categories', function ($q) use ($expandedIds) {
+                    $q->whereIn('categories.id', $expandedIds);
+                });
+            } else {
+                // اگر دسته‌بندی با این اسلاگ پیدا نشد، نتیجه خالی برگردان
+                $query->whereRaw('1 = 0');
+            }
         }
 
         if ($request->filled('attribute_values')) {

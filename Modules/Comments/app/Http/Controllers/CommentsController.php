@@ -105,7 +105,7 @@ class CommentsController extends Controller
     // لیست همه کامنت‌ها
     public function indexAdmin()
     {
-        $comments = Comment::with('user', 'commentable')
+        $comments = Comment::with('user', 'commentable', 'replies.user')
             ->latest()
             ->whereNull('parent_id')
             ->paginate(20);
