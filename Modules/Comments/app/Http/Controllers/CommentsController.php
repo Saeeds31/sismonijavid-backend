@@ -5,9 +5,11 @@ namespace Modules\Comments\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Comments\Models\Comment;
+use Modules\Notifications\Services\NotificationService;
 
 class CommentsController extends Controller
 {
+
     // لیست کامنت‌های یک مقاله یا محصول
     public function indexArticle($id)
     {
@@ -30,7 +32,7 @@ class CommentsController extends Controller
         return response()->json($comments);
     }
     // ثبت کامنت جدید
-    public function storeArticle(Request $request, $id)
+    public function storeArticle(Request $request, $id, NotificationService $notifications)
     {
         $user = $request->user();
         $request->validate([
@@ -49,17 +51,22 @@ class CommentsController extends Controller
             'ip' => $request->ip(),
             'status' => 0, // پیش‌فرض pending
         ]);
-
+        $notifications->create(
+            "ثبت کامنت مقاله",
+            "کامنت جدید بری مقاله {$id} در سیستم ثبت شد",
+            "notification_comment",
+            ['comment' => $comment->id]
+        );
         return response()->json([
             'message' => 'کامنت شما ثبت شد و پس از تایید نمایش داده خواهد شد.',
             'comment' => $comment
         ]);
     }
-       public function stats()
+    public function stats()
     {
         return response()->json(Comment::dashboardReport());
     }
-    public function storeProducts(Request $request, $id)
+    public function storeProducts(Request $request, $id, NotificationService $notifications)
     {
         $user = $request->user();
         $request->validate([
@@ -78,7 +85,12 @@ class CommentsController extends Controller
             'ip' => $request->ip(),
             'status' => 0, // پیش‌فرض pending
         ]);
-
+        $notifications->create(
+            "ثبت کامنت محصول",
+            "کامنت جدید بری محصول {$id} در سیستم ثبت شد",
+            "notification_comment",
+            ['comment' => $comment->id]
+        );
         return response()->json([
             'message' => 'کامنت شما ثبت شد و پس از تایید نمایش داده خواهد شد.',
             'comment' => $comment
@@ -101,14 +113,19 @@ class CommentsController extends Controller
     }
 
     // تغییر وضعیت کامنت (تایید، رد، ...)
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request, $id, NotificationService $notifications)
     {
         $request->validate([
             'status' => 'required|in:0,1,2', // 0=pending, 1=approved, 2=rejected
         ]);
         $comment = Comment::findOrFail($id);
         $comment->update(['status' => $request->status]);
-
+        $notifications->create(
+            "ثبت وضعیت جدید کامنت",
+            "وضعیت جدید بری کامنت {$comment->id} در سیستم ثبت شد",
+            "notification_comment",
+            ['comment' => $comment->id]
+        );
         return response()->json([
             'message' => 'وضعیت کامنت تغییر کرد.',
             'comment' => $comment
@@ -116,7 +133,7 @@ class CommentsController extends Controller
     }
 
     // پاسخ به یک کامنت
-    public function reply(Request $request, $id)
+    public function reply(Request $request, $id, NotificationService $notifications)
     {
         $request->validate([
             'content' => 'required|string|min:3',
@@ -132,7 +149,12 @@ class CommentsController extends Controller
             'status' => 1, // پاسخ ادمین مستقیم تایید شده
             'ip' => $request->ip(),
         ]);
-
+        $notifications->create(
+            "ثبت پاسخ",
+            "پاسخ جدید بری کامنت {$comment->id} در سیستم ثبت شد",
+            "notification_comment",
+            ['comment' => $comment->id]
+        );
         return response()->json([
             'message' => 'پاسخ ثبت شد.',
             'reply' => $reply
