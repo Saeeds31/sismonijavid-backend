@@ -14,8 +14,9 @@ class UserUpdateRequest extends FormRequest
     {
         return [
             'full_name'     => ['sometimes', 'string', 'max:255'],
-            'mobile'        => ['sometimes', 'string', 'size:11', Rule::unique('users','mobile')->ignore($this->route('user'))],
+            'mobile'        => ['sometimes', 'string', 'size:11', Rule::unique('users', 'mobile')->ignore($this->route('user'))],
             'password'      => ['sometimes', 'string', 'min:6'],
+            'avatar' => ['nullable', 'file',  'max:1024'],
             'national_code' => ['sometimes', 'string', 'size:10'],
             'birth_date'    => ['sometimes', 'date'],
         ];
