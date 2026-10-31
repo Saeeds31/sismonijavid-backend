@@ -35,7 +35,7 @@ class ProductStoreRequest extends FormRequest
                 'string',
                 'min:3',
                 'max:255',
-                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'
+                'regex:/^[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*$/u'
             ],
             'video'            => ['nullable', 'file', 'max:4096'],
             'categories' => ['required', 'array'],

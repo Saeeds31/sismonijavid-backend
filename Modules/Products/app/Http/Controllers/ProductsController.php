@@ -457,7 +457,12 @@ class ProductsController extends Controller
             $category = Category::where('slug', $category_slug)->first();
 
             if ($category) {
-                $expandedIds = $category->descendantIds();
+                // خود دسته + همه زیردسته‌ها
+                $expandedIds = collect($category->descendantIds())
+                    ->push($category->id)
+                    ->unique()
+                    ->values()
+                    ->toArray();
 
                 $query->whereHas('categories', function ($q) use ($expandedIds) {
                     $q->whereIn('categories.id', $expandedIds);
