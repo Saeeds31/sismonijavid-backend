@@ -19,6 +19,7 @@ Route::middleware(['auth:sanctum'])->prefix('v1/admin')->group(function () {
     Route::prefix('sync-product')->group(function () {
         Route::get('/export', [VariantExcelController::class, 'export']);
         Route::post('/import', [VariantExcelController::class, 'import']);
+        Route::get('logs', [VariantExcelController::class, 'logs']);
     });
 });
 Route::prefix('v1/front')->group(function () {

@@ -9,6 +9,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Modules\Products\Exports\VariantsExport;
 use Modules\Products\Http\Requests\VariantImportRequest;
 use Modules\Products\Imports\VariantsImport;
+use Modules\Products\Models\VariantExcelImportLog;
 use Modules\Products\Services\VariantBulkUpdateService;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -43,12 +44,16 @@ class VariantExcelController extends Controller
      */
     public function import(VariantImportRequest $request)
     {
+        $uploadedFile = $request->file('file');
+
+        // ذخیره فایل روی دیسک public
+        $storedPath = $uploadedFile->store('variant-imports', 'public');
+
         $importer = new VariantsImport();
 
         // مرحله 1: parse و validate
-        Excel::import($importer, $request->file('file'));
-
-        // اگه خطایی هست → هیچی ذخیره نشه
+        Excel::import($importer, $uploadedFile);
+        // اگه خطایی هست → هیچی ذخیره نشه، ولی لاگ ثبت بشه
         if (!empty($importer->errors)) {
             return response()->json([
                 'success' => false,
@@ -65,20 +70,20 @@ class VariantExcelController extends Controller
         }
 
         // مرحله 2: بررسی وجود variant_idها قبل از آپدیت
-        $variantIds = array_column($importer->rows, 'variant_id');
+        $variantIds  = array_column($importer->rows, 'variant_id');
         $existingIds = \Modules\Products\Models\ProductVariant::whereIn('id', $variantIds)
             ->pluck('id')
             ->all();
-        $missingIds = array_values(array_diff($variantIds, $existingIds));
+        $missingIds  = array_values(array_diff($variantIds, $existingIds));
 
         if (!empty($missingIds)) {
             $errors = [];
             foreach ($importer->rows as $row) {
                 if (in_array($row['variant_id'], $missingIds, true)) {
                     $errors[] = [
-                        'row' => $row['excel_row'],
-                        'column' => 'variant_id',
-                        'value' => (string) $row['variant_id'],
+                        'row'     => $row['excel_row'],
+                        'column'  => 'variant_id',
+                        'value'   => (string) $row['variant_id'],
                         'message' => 'تنوع با این شناسه در سیستم یافت نشد',
                     ];
                 }
@@ -97,6 +102,14 @@ class VariantExcelController extends Controller
                 $request->user()->id
             );
 
+            // ثبت لاگ موفق
+            VariantExcelImportLog::create([
+                'user_id'       => $request->user()->id,
+                'file_path'     => $storedPath,
+                'total_rows'    => count($importer->rows),
+                'updated_count' => $report['updated'] ?? count($importer->rows),
+            ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'بروزرسانی با موفقیت انجام شد.',
@@ -107,11 +120,25 @@ class VariantExcelController extends Controller
                 'admin_id' => $request->user()->id,
                 'error'    => $e->getMessage(),
             ]);
-
             return response()->json([
                 'success' => false,
                 'message' => 'خطا در بروزرسانی: ' . $e->getMessage(),
             ], 500);
         }
+    }
+    /**
+     * لیست لاگ‌های آپلود اکسل به صورت صفحه‌بندی شده
+     */
+    public function logs(Request $request)
+    {
+        $perPage = (int) $request->query('per_page', 15);
+        $perPage = max(1, min($perPage, 100));
+
+        $logs = VariantExcelImportLog::query()
+            ->with('user:id,full_name')
+            ->latest('id')
+            ->paginate($perPage);
+
+        return response()->json($logs);
     }
 }
