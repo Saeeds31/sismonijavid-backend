@@ -21,6 +21,8 @@ Route::middleware(['auth:sanctum'])->prefix('v1/admin')->group(function () {
         Route::post('/import', [VariantExcelController::class, 'import']);
         Route::get('logs', [VariantExcelController::class, 'logs']);
     });
+    Route::get('products-low-stock', [ProductsController::class, 'lowStockList'])
+        ->name('products.low-stock');
 });
 Route::prefix('v1/front')->group(function () {
     Route::get('/products/search', [ProductsController::class, 'search'])->name('search');

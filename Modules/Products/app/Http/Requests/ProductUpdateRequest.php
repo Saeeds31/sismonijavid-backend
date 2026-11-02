@@ -34,6 +34,7 @@ class ProductUpdateRequest extends FormRequest
             'price'            => ['nullable', 'integer', 'min:0'],
             'in_store_price'            => ['nullable', 'integer', 'min:0'],
             'video'            => ['nullable', 'file', 'max:4096'],
+            'low_stock_threshold' => ['nullable', 'integer', 'min:0'],
             'slug' => [
                 'nullable',
                 'string',

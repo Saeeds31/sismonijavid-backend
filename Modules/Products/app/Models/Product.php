@@ -40,9 +40,13 @@ class Product extends Model
         'price',
         'slug',
         'in_store_price',
+        'low_stock_threshold',
         'video'
     ];
     protected $appends = ['final_price', 'pos_price'];
+    protected $casts = [
+        'low_stock_threshold' => 'integer',
+    ];
     /**
      * قیمت مخصوص POS - فقط قیمت پایه بدون تخفیف
      * اگه in_store_price پر بود از آن استفاده می‌کنه، وگرنه price

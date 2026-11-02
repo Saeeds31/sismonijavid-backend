@@ -30,6 +30,7 @@ class ProductStoreRequest extends FormRequest
             'stock'            => ['nullable', 'integer', 'min:0'],
             'price'            => ['required', 'integer', 'min:0'],
             'in_store_price'            => ['nullable', 'integer', 'min:0'],
+            'low_stock_threshold' => ['nullable', 'integer', 'min:0'],
             'slug' => [
                 'nullable',
                 'string',
