@@ -36,25 +36,9 @@ class ProductsController extends Controller
 
         // فیلتر وضعیت
         if ($status = $request->get('status')) {
-            if ($status === 'draft') {
-                // فقط پیش‌نویس‌هایی که published_at دارند
-                $query->where('status', 'draft')
-                    ->whereNotNull('published_at');
-            } else {
-                // وضعیت منتشر شده یا هر وضعیت دیگر
-                $query->where('status', $status);
-            }
-        } else {
-            // بدون فیلتر: همه به جز پیش‌نویس‌های بدون published_at
-            $query->where(function ($q) {
-                $q->where('status', '!=', 'draft')
-                    ->orWhere(function ($q2) {
-                        $q2->where('status', 'draft')
-                            ->whereNotNull('published_at');
-                    });
-            });
+            // وضعیت منتشر شده یا هر وضعیت دیگر
+            $query->where('status', $status);
         }
-
         $products = $query->orderBy('created_at', 'desc')->paginate(15);
         return response()->json($products);
     }
