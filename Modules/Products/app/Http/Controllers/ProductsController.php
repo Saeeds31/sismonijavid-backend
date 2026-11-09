@@ -172,6 +172,8 @@ class ProductsController extends Controller
                 'price'    => $product->price ?? 0,
                 'in_store_price'    => $product->in_store_price ?? 0,
             ]);
+            $this->productStockService->sync($product);
+
             return;
         }
 
