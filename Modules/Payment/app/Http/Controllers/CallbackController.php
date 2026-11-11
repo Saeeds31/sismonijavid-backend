@@ -27,6 +27,7 @@ class CallbackController extends Controller
         Request $request,
         string $gateway
     ) {
+
         $callbackLog = GatewayCallbackLog::create([
             'gateway' => $gateway,
             'method' => $request->method(),
@@ -207,6 +208,13 @@ class CallbackController extends Controller
                 return true;
             }
         }
+        // ===== ترب =====
+        if ($gateway === 'torobpay') {
+            $state = $request->input('state');
+            if ($state === 'FAILED') {
+                return true; // یعنی پرداخت ناموفق بوده، بریم سراغ failOrder
+            }
+        }
         return false;
     }
 
@@ -243,6 +251,13 @@ class CallbackController extends Controller
      */
     protected function findTransaction(string $gateway, Request $request): ?GatewayTransaction
     {
+        if ($gateway === 'torobpay' && empty($request->all())) {
+            $rawBody = file_get_contents('php://input');
+            if (!empty($rawBody)) {
+                parse_str($rawBody, $parsedBody);
+                $request->merge($parsedBody);
+            }
+        }
         $authority = null;
 
         switch ($gateway) {
@@ -257,6 +272,15 @@ class CallbackController extends Controller
                 break;
             case 'snapp_pay':
                 $authority = $request->input('paymentToken') ?? $request->input('token') ?? $request->input('Authority');
+                break;
+            case 'torobpay':
+                $tid = $request->input('transactionId');
+                if ($tid) {
+                    return GatewayTransaction::query()
+                        ->where('id', (int) $tid)
+                        ->with('payable')
+                        ->first();
+                }
                 break;
         }
 
