@@ -23,24 +23,45 @@ class TorobProductService
     // ====================================================================
     public function fetchByPageUrls(Channel $channel, array $pageUrls): array
     {
-        // page_url ها مثل: https://api.mahseti.shop/product/34/
-        // از انتهای URL، product_id رو استخراج می‌کنیم
-        $productIds = collect($pageUrls)
-            ->map(fn($url) => $this->extractProductIdFromUrl($url))
+        // استخراج شناسه‌ها (id یا slug)
+        $identifiers = collect($pageUrls)
+            ->map(fn($url) => $this->extractProductIdentifierFromUrl($url))
             ->filter()
             ->unique()
             ->values()
             ->all();
 
-        if (empty($productIds)) {
+        if (empty($identifiers)) {
             return $this->emptyResponse();
         }
 
-        $products = Product::query()
-            ->whereIn('id', $productIds)
+        // جدا کردن id ها از slug ها
+        $numericIds = [];
+        $slugs = [];
+
+        foreach ($identifiers as $identifier) {
+            if (ctype_digit($identifier)) {
+                $numericIds[] = (int) $identifier;
+            } else {
+                $slugs[] = $identifier;
+            }
+        }
+
+        // جستجو با id یا slug
+        $query = Product::query()
             ->where('status', 'published')
-            ->with($this->eagerLoad())
-            ->get();
+            ->with($this->eagerLoad());
+
+        $query->where(function ($q) use ($numericIds, $slugs) {
+            if (!empty($numericIds)) {
+                $q->orWhereIn('id', $numericIds);
+            }
+            if (!empty($slugs)) {
+                $q->orWhereIn('slug', $slugs);
+            }
+        });
+
+        $products = $query->get();
 
         $products = $this->filterExcluded($channel, $products);
 
@@ -310,12 +331,13 @@ class TorobProductService
     // Helpers
     // ====================================================================
 
-    protected function extractProductIdFromUrl(string $url): ?int
+    protected function extractProductIdentifierFromUrl(string $url): ?int
     {
-        // https://api.mahseti.shop/product/34/  →  34
-        if (preg_match('#/product/(\d+)#', $url, $m)) {
-            return (int) $m[1];
+        // https://api.sismonijavid.ir/product/34/  →  34
+        if (preg_match('#/product/([^/?#]+)#', $url, $m)) {
+            return urldecode($m[1]);
         }
+
 
         return null;
     }
@@ -332,11 +354,12 @@ class TorobProductService
 
     protected function buildProductUrl(Product $product, ProductVariant $variant): string
     {
-        // آدرس صفحه محصول تو فرانت
-        $base = rtrim(config('app.front_url', 'https://mahseti.shop'), '/');
+        $base = rtrim(config('app.front_url', 'https://sismonijavid.ir'), '/');
 
-        // ⚠️ نکته: variant تو URL نیست، فقط product.id
-        return "{$base}/product/{$product->id}";
+        // اگه slug داره، از slug استفاده کن؛ وگرنه id
+        $identifier = $product->slug ?: $product->id;
+
+        return "{$base}/product/{$identifier}";
     }
 
     protected function buildTitle(Product $product, ProductVariant $variant): string

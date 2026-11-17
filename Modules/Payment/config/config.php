@@ -34,6 +34,13 @@ return [
             'username' => env('TOROBPAY_USERNAME'),
             'password' => env('TOROBPAY_PASSWORD'),
         ],
+        'digipay' => [
+            'base_url' => env('DIGIPAY_BASE_URL', 'https://api.mydigipay.com/digipay/api'),
+            'client_id' => env('DIGIPAY_CLIENT_ID'),
+            'client_secret' => env('DIGIPAY_CLIENT_SECRET'),
+            'username' => env('DIGIPAY_USERNAME'),
+            'password' => env('DIGIPAY_PASSWORD'),
+        ],
     ],
 
 ];

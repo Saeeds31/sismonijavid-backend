@@ -215,6 +215,9 @@ class CallbackController extends Controller
                 return true; // یعنی پرداخت ناموفق بوده، بریم سراغ failOrder
             }
         }
+        if ($gateway === 'digipay') {
+            if ($request->input('result') === 'FAILURE') return true;
+        }
         return false;
     }
 
@@ -281,6 +284,13 @@ class CallbackController extends Controller
                         ->with('payable')
                         ->first();
                 }
+                break;
+            case 'digipay':
+                $providerId = $request->input('providerId');
+                if ($providerId) {
+                    return GatewayTransaction::where('id', (int) $providerId)->with('payable')->first();
+                }
+                $authority = $request->input('trackingCode');
                 break;
         }
 

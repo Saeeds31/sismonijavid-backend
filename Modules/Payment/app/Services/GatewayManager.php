@@ -3,6 +3,7 @@
 namespace Modules\Payment\Services;
 
 use Exception;
+use Modules\Payment\Drivers\DigiPayDriver;
 use Modules\Payment\Drivers\ZarinpalDriver;
 use Modules\Payment\Drivers\ZibalDriver;
 use Modules\Payment\Drivers\ParsianDriver;
@@ -22,6 +23,7 @@ class GatewayManager
             'parsian' => app(ParsianDriver::class),
             'snapp_pay' => app(SnappPayDriver::class),
             'torobpay' => app(TorobPayDriver::class),
+            'digipay' => app(DigiPayDriver::class),
 
             default => throw new Exception('Gateway not found'),
         };
