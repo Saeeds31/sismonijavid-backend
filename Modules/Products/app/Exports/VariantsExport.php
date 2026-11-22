@@ -45,7 +45,7 @@ class VariantsExport implements
                     $c->whereIn('categories.id', $this->categoryIds);
                 });
             })
-            ->limit(100)
+            ->limit(1000)
             ->pluck('id');
 
         return ProductVariant::query()
